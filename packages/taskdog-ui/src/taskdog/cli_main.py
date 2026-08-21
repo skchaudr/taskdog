@@ -23,6 +23,10 @@ LAZY_SUBCOMMANDS: dict[str, tuple[str, str]] = {
         "taskdog.cli.commands.audit.audit_group",
         "Inspect operation history (audit logs).",
     ),
+    "capture": (
+        "taskdog.cli.commands.capture.capture_command",
+        "Capture many tasks at once, one name per line (Ctrl-D to finish).",
+    ),
     "cancel": (
         "taskdog.cli.commands.cancel.cancel_command",
         "Mark task(s) as canceled.",
