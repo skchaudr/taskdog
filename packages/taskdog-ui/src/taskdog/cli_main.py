@@ -53,6 +53,10 @@ LAZY_SUBCOMMANDS: dict[str, tuple[str, str]] = {
         "Display tasks in flat table format (shows non-archived tasks by default).",
     ),
     "note": ("taskdog.cli.commands.note.note_command", "Edit task notes in markdown."),
+    "now": (
+        "taskdog.cli.commands.now.now_command",
+        "Show what to work on right now (ranked, dependency-resolved).",
+    ),
     "optimize": (
         "taskdog.cli.commands.optimize.optimize_command",
         "Auto-generate optimal schedules for tasks based on priority, deadlines, and workload.",
