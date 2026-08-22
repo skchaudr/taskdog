@@ -23,6 +23,10 @@ LAZY_SUBCOMMANDS: dict[str, tuple[str, str]] = {
         "taskdog.cli.commands.audit.audit_group",
         "Inspect operation history (audit logs).",
     ),
+    "capture": (
+        "taskdog.cli.commands.capture.capture_command",
+        "Capture many tasks at once, one name per line (Ctrl-D to finish).",
+    ),
     "cancel": (
         "taskdog.cli.commands.cancel.cancel_command",
         "Mark task(s) as canceled.",
@@ -53,6 +57,10 @@ LAZY_SUBCOMMANDS: dict[str, tuple[str, str]] = {
         "Display tasks in flat table format (shows non-archived tasks by default).",
     ),
     "note": ("taskdog.cli.commands.note.note_command", "Edit task notes in markdown."),
+    "now": (
+        "taskdog.cli.commands.now.now_command",
+        "Show what to work on right now (ranked, dependency-resolved).",
+    ),
     "optimize": (
         "taskdog.cli.commands.optimize.optimize_command",
         "Auto-generate optimal schedules for tasks based on priority, deadlines, and workload.",
