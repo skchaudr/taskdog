@@ -145,3 +145,70 @@ class TestNowCommand:
         assert result.exit_code == 0
         mock_render_table.assert_not_called()
         self.console_writer.info.assert_called_once()
+
+    def _ranked_result(self, ranked: int, unranked: int) -> NextTasksOutput:
+        """Build a result where `ranked` rows carry a deadline and the rest do not."""
+        now = datetime(2026, 8, 21, 9, 0, 0)
+        tasks = [
+            TaskRowDto(
+                id=index,
+                name=f"Task {index}",
+                priority=None,
+                status=TaskStatus.PENDING,
+                planned_start=None,
+                planned_end=None,
+                deadline=now if index <= ranked else None,
+                actual_start=None,
+                actual_end=None,
+                estimated_duration=None,
+                actual_duration_hours=None,
+                is_fixed=False,
+                depends_on=[],
+                tags=[],
+                is_archived=False,
+                is_finished=False,
+                created_at=now,
+                updated_at=now,
+            )
+            for index in range(1, ranked + unranked + 1)
+        ]
+        return NextTasksOutput(tasks=tasks)
+
+    @patch("taskdog.cli.commands.now.render_table")
+    def test_warns_when_no_task_has_a_ranking_field(self, mock_render_table):
+        """Rows with no deadline/priority/estimate fall out in id order, not rank."""
+        self.api_client.get_executable_tasks.return_value = self._ranked_result(0, 3)
+
+        result = self.runner.invoke(now_command, [], obj=self.cli_context)
+
+        assert result.exit_code == 0
+        self.console_writer.warning.assert_called_once()
+        message = self.console_writer.warning.call_args[0][0]
+        assert "Not ranked" in message
+        assert "capture order" in message
+        # The rows are still shown - the warning qualifies them, it does not hide them.
+        mock_render_table.assert_called_once()
+
+    @patch("taskdog.cli.commands.now.render_table")
+    def test_warns_when_only_some_tasks_are_rankable(self, mock_render_table):
+        """A partially populated ledger still ranks, but the gap is worth saying."""
+        self.api_client.get_executable_tasks.return_value = self._ranked_result(1, 2)
+
+        result = self.runner.invoke(now_command, [], obj=self.cli_context)
+
+        assert result.exit_code == 0
+        message = self.console_writer.warning.call_args[0][0]
+        assert "Partially ranked" in message
+        assert "2 of 3" in message
+        mock_render_table.assert_called_once()
+
+    @patch("taskdog.cli.commands.now.render_table")
+    def test_stays_quiet_when_every_task_is_rankable(self, mock_render_table):
+        """No warning when the ordering actually means something."""
+        self.api_client.get_executable_tasks.return_value = self._ranked_result(3, 0)
+
+        result = self.runner.invoke(now_command, [], obj=self.cli_context)
+
+        assert result.exit_code == 0
+        self.console_writer.warning.assert_not_called()
+        mock_render_table.assert_called_once()

@@ -20,6 +20,10 @@ DEFAULT_LIMIT = 3
 # Narrower than `list` on purpose - enough to choose between rows, nothing more.
 DEFAULT_FIELDS = ["id", "name", "status", "deadline", "duration"]
 
+# The fields ranking actually reads. If a row has none of them set, its position
+# carries no information.
+RANKING_FIELDS = ("deadline", "priority", "estimated_duration")
+
 
 @click.command(
     name="now",
@@ -75,6 +79,27 @@ def now_command(
     if not result.tasks:
         ctx_obj.console_writer.info("Nothing executable right now.")
         return
+
+    # Ranking sorts by deadline, then priority, then estimate. A task captured
+    # through the espanso popup has none of them, so a ledger of popup captures
+    # sorts by nothing and falls out in id order - the order they were typed.
+    # Rendering that as a ranked answer invites acting on a sequence that means
+    # nothing, so say so instead.
+    ranked = [
+        t
+        for t in result.tasks
+        if any(getattr(t, f, None) is not None for f in RANKING_FIELDS)
+    ]
+    if not ranked:
+        ctx_obj.console_writer.warning(
+            f"Not ranked: none of these {len(result.tasks)} tasks has a deadline, "
+            "priority, or estimate, so this is capture order, not a recommendation."
+        )
+    elif len(ranked) < len(result.tasks):
+        ctx_obj.console_writer.warning(
+            f"Partially ranked: {len(result.tasks) - len(ranked)} of "
+            f"{len(result.tasks)} tasks has no deadline, priority, or estimate."
+        )
 
     # NextTasksOutput carries the same TaskRowDto rows the table renderer wants,
     # minus the list metadata; the counts here describe the ranked slice only.
