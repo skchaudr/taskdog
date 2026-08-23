@@ -98,7 +98,7 @@ def now_command(
     elif len(ranked) < len(result.tasks):
         ctx_obj.console_writer.warning(
             f"Partially ranked: {len(result.tasks) - len(ranked)} of "
-            f"{len(result.tasks)} tasks has no deadline, priority, or estimate."
+            f"{len(result.tasks)} tasks have no deadline, priority, or estimate."
         )
 
     # NextTasksOutput carries the same TaskRowDto rows the table renderer wants,
