@@ -14,8 +14,7 @@ from taskdog_core.application.dto.task_list_output import TaskListOutput
 if TYPE_CHECKING:
     from taskdog.cli.context import CliContext
 
-# Deliberately small: the point of `now` is that the answer fits in one glance.
-DEFAULT_LIMIT = 3
+DEFAULT_LIMIT = 5
 
 # Narrower than `list` on purpose - enough to choose between rows, nothing more.
 DEFAULT_FIELDS = ["id", "name", "status", "deadline", "duration"]
@@ -66,8 +65,8 @@ def now_command(
     priority, and estimate - the same order the API and MCP tools use.
 
     Examples:
-        taskdog now                    # Top 3 executable tasks
-        taskdog now -n 5               # Top 5
+        taskdog now                    # Top 5 executable tasks
+        taskdog now -n 10              # Top 10
         taskdog now -t work            # Only tasks tagged "work"
         taskdog now --fields id,name   # Just IDs and names
     """
