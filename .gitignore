@@ -232,3 +232,7 @@ assets/
 # MkDocs
 site/
 docs/reference/api.md
+.DS_Store
+contrib/.DS_Store
+docs/.DS_Store
+packages/.DS_Store
